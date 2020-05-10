@@ -38,7 +38,7 @@ namespace HYRBEAN
             this.synchronizationContext = SynchronizationContext.Current;
         }
 
-        private void btnBrowseFolder_Click(object sender, EventArgs e)
+        private async void btnBrowseFolder_Click(object sender, EventArgs e)
         {
             try
             {
@@ -50,8 +50,9 @@ namespace HYRBEAN
                     files = files.Where(f => ImageExtensions.Contains(Path.GetExtension(f.ToUpper())));
                     if (files.Count() > 0){
                         this.flowLayoutImages.Controls.Clear();
-                        this.readImages(files.ToArray());                        
+                        await this.readImages(files.ToArray());                        
                         this.btnExportRois.Enabled = true;
+                        this.btnExportPredictions.Enabled = true;
                     }
                     else{
                         MessageBox.Show("Images not found", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -64,13 +65,13 @@ namespace HYRBEAN
         }
 
 
-        private async void readImages(string[] files)
+        private async Task readImages(string[] files)
         {
             this.images = new Dictionary<string, PollenImage>();            
             foreach(var file in files){
                 PollenImage img = new PollenImage(file);
-                this.images.Add(Path.GetFileNameWithoutExtension(file), img);
                 await img.process();
+                this.images.Add(Path.GetFileNameWithoutExtension(file), img);                
                 foreach (PollenGrain pollenGrain in img.pollenGrains){
                     await pollenGrain.computeFeatures();
                     float label = this.model.Predict(pollenGrain.getFeaturesAsMatrix());                    
@@ -144,10 +145,52 @@ namespace HYRBEAN
 
         private void btnExportRois_Click(object sender, EventArgs e)
         {
-            Task.WhenAll(this.images.Values.Select(img => img.export()));
-            MessageBox.Show("Pollen grains ROIS exported successfully!");
+            try{
+                FolderBrowserDialog dialog = new FolderBrowserDialog();
+                dialog.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);               
+                if (dialog.ShowDialog() == DialogResult.OK){
+                    String outputFolder = Path.Combine(dialog.SelectedPath, "output");
+                    Directory.CreateDirectory(outputFolder);                    
+                    Task.WhenAll(this.images.Values.Select(img =>
+                        Task.Run(async delegate (){
+                            String imageFolderName = Path.GetFileNameWithoutExtension(img.path);
+                            String imageOutputFolder = Path.Combine(outputFolder, imageFolderName);
+                            Directory.CreateDirectory(imageOutputFolder);
+                            await img.exportRois(imageOutputFolder);
+                        })
+                    ));
+                    MessageBox.Show("ROIS exported successfully!");
+                }
+            }
+            catch(Exception ex){
+                MessageBox.Show(ex.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
+        private void btnExportPredictions_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                SaveFileDialog dialog = new SaveFileDialog();
+                dialog.Filter = "CSV Files (*.csv)|*.csv";
+                dialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                if (dialog.ShowDialog() == DialogResult.OK)
+                    using (var csv = new StreamWriter(dialog.FileName, false)){
+                        csv.WriteLine("FileName, viables, nonViables");
+                        foreach (var image in this.images){
+                            int viablesCount = image.Value.pollenGrains.Where(grain => grain.label == PollenType.viable).Count();
+                            int nonViablesCount = image.Value.pollenGrains.Where(grain => grain.label == PollenType.nonViable).Count();                            
+                            csv.WriteLine(String.Format("{0},{1},{2}", image.Key, viablesCount, nonViablesCount));
+                            csv.Flush();
+                        }
+                        MessageBox.Show("file exported succesfully", "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 
 

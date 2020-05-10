@@ -30,13 +30,13 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.btnExportPredictions = new System.Windows.Forms.Button();
             this.btnExportRois = new System.Windows.Forms.Button();
             this.btnBrowseFolder = new System.Windows.Forms.Button();
             this.txtImagesDirectory = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.flowLayoutImages = new System.Windows.Forms.FlowLayoutPanel();
-            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -67,7 +67,7 @@
             // 
             // groupBox1
             // 
-            this.groupBox1.Controls.Add(this.button1);
+            this.groupBox1.Controls.Add(this.btnExportPredictions);
             this.groupBox1.Controls.Add(this.btnExportRois);
             this.groupBox1.Controls.Add(this.btnBrowseFolder);
             this.groupBox1.Controls.Add(this.txtImagesDirectory);
@@ -79,6 +79,18 @@
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Select Folder";
+            // 
+            // btnExportPredictions
+            // 
+            this.btnExportPredictions.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnExportPredictions.Enabled = false;
+            this.btnExportPredictions.Location = new System.Drawing.Point(371, 65);
+            this.btnExportPredictions.Name = "btnExportPredictions";
+            this.btnExportPredictions.Size = new System.Drawing.Size(156, 38);
+            this.btnExportPredictions.TabIndex = 5;
+            this.btnExportPredictions.Text = "Export Predictions";
+            this.btnExportPredictions.UseVisualStyleBackColor = true;
+            this.btnExportPredictions.Click += new System.EventHandler(this.btnExportPredictions_Click);
             // 
             // btnExportRois
             // 
@@ -140,17 +152,6 @@
             this.flowLayoutImages.Size = new System.Drawing.Size(1021, 465);
             this.flowLayoutImages.TabIndex = 0;
             // 
-            // button1
-            // 
-            this.button1.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.button1.Enabled = false;
-            this.button1.Location = new System.Drawing.Point(371, 65);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(156, 38);
-            this.button1.TabIndex = 5;
-            this.button1.Text = "Export Predictions";
-            this.button1.UseVisualStyleBackColor = true;
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 20F);
@@ -183,7 +184,7 @@
         private System.Windows.Forms.Button btnBrowseFolder;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutImages;
         private System.Windows.Forms.Button btnExportRois;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnExportPredictions;
     }
 }
 

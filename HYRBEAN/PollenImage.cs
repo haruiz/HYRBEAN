@@ -131,13 +131,15 @@ namespace HYRBEAN
             await this.extractContourns();            
         }
 
-        public Task export(){
-            String outputFolderName = Path.GetFileNameWithoutExtension(this.path);
-            String outputFolder = Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "output", outputFolderName);
-            if (Directory.Exists(outputFolder)){
-                Directory.Delete(outputFolder, true);
+        public Task exportRois(String outputFolder = null){
+            if (outputFolder == null){
+                String outputFolderName = Path.GetFileNameWithoutExtension(this.path);
+                outputFolder = Path.Combine(Path.GetDirectoryName(System.Windows.Forms.Application.ExecutablePath), "output", outputFolderName);
+                if (Directory.Exists(outputFolder)){
+                    Directory.Delete(outputFolder, true);
+                }
+                Directory.CreateDirectory(outputFolder);
             }
-            Directory.CreateDirectory(outputFolder);
             return Task.Run(delegate (){
                 foreach(var pollenGrain in this.pollenGrains){
                     String outputFile = $@"{outputFolder}/{Guid.NewGuid().ToString()}.jpg";
